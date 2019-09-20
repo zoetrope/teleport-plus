@@ -1,5 +1,5 @@
 apiVersion: teleport.gravitational.com/v1
-kind: github
+kind: GitHub
 metadata:
   name: github-sample
 spec:

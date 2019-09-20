@@ -1,3 +1,7 @@
 version: "2"
 domain: gravitational.com
 repo: github.com/zoetrope/teleport-plus
+resources:
+- group: teleport
+  version: v1
+  kind: GitHub

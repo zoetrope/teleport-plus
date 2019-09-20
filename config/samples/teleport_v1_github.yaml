@@ -1,0 +1,24 @@
+apiVersion: teleport.gravitational.com/v1
+kind: github
+metadata:
+  name: github-sample
+spec:
+  # client ID of Github OAuth app
+  client_id: <client-id>
+  # client secret of Github OAuth app
+  client_secret: <client-secret>
+  # connector display name that will be shown on web UI login screen
+  display: Github
+  # callback URL that will be called after successful authentication
+  redirect_url: https://<proxy-address>/v1/webapi/github/callback
+  # mapping of org/team memberships onto allowed logins and roles
+  teams_to_logins:
+    - organization: octocats # Github organization name
+      team: admins # Github team name within that organization
+      # allowed logins for users in this org/team
+      logins:
+        - root
+
+      # List of Kubernetes groups this Github team is allowed to connect to
+      # (see Kubernetes integration for more information)
+      kubernetes_groups: ["system:masters"]

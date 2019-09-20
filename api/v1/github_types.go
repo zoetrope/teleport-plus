@@ -57,7 +57,7 @@ type TeamMapping struct {
 type GitHubStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Registered bool
+	Registered bool `json:"registered"`
 }
 
 // +kubebuilder:object:root=true

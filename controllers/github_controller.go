@@ -35,10 +35,18 @@ type GitHubReconciler struct {
 // +kubebuilder:rbac:groups=teleport.gravitational.com,resources=githubs/status,verbs=get;update;patch
 
 func (r *GitHubReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("github", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("github", req.NamespacedName)
 
 	// your logic here
+	var github teleportv1.GitHub
+	err := r.Get(ctx, req.NamespacedName, &github)
+	if err != nil {
+		log.Error(err, "unable to fetch GitHub")
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	log.Info("Reconcile a github resource: ", github.GetName())
 
 	return ctrl.Result{}, nil
 }

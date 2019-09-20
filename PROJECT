@@ -1,0 +1,3 @@
+version: "2"
+domain: gravitational.com
+repo: github.com/zoetrope/teleport-plus

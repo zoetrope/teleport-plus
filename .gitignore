@@ -22,3 +22,6 @@ bin
 *.swp
 *.swo
 *~
+
+# ignore go.sum
+/go.sum

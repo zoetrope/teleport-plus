@@ -61,6 +61,8 @@ type GitHubStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster
+// +kubebuilder:subresource:status
 
 // GitHub is the Schema for the githubs API
 type GitHub struct {

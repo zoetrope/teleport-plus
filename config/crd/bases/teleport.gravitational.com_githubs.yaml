@@ -10,7 +10,7 @@ spec:
   names:
     kind: GitHub
     plural: githubs
-  scope: ""
+  scope: Cluster
   validation:
     openAPIV3Schema:
       description: GitHub is the Schema for the githubs API

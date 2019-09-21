@@ -6,6 +6,10 @@ metadata:
   creationTimestamp: null
   name: githubs.teleport.gravitational.com
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.condition
+    name: Condition
+    type: string
   group: teleport.gravitational.com
   names:
     kind: GitHub

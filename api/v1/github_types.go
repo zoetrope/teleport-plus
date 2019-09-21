@@ -68,6 +68,7 @@ type GitHubStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:scope=Cluster
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Condition",type=string,JSONPath=`.status.condition`
 
 // GitHub is the Schema for the githubs API
 type GitHub struct {

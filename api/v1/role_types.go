@@ -29,46 +29,46 @@ type RoleSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	// +optional
-	Options RoleOptions    `json:"options,omitempty"`
+	Options RoleOptions `json:"options,omitempty"`
 	// +optional
-	Allow   RoleConditions `json:"allow,omitempty"`
+	Allow RoleConditions `json:"allow,omitempty"`
 	// +optional
-	Deny    RoleConditions `json:"deny,omitempty"`
+	Deny RoleConditions `json:"deny,omitempty"`
 }
 
 type RoleOptions struct {
-	ForwardAgent          bool           `json:"forward_agent"`
+	ForwardAgent bool `json:"forward_agent"`
 	// +optional
-	MaxSessionTTL         *time.Duration `json:"max_session_ttl,omitempty"`
+	MaxSessionTTL *time.Duration `json:"max_session_ttl,omitempty"`
 	// +optional
-	PortForwarding        *bool          `json:"port_forwarding,omitempty"`
-	CertificateFormat     string         `json:"cert_format"`
+	PortForwarding    *bool  `json:"port_forwarding,omitempty"`
+	CertificateFormat string `json:"cert_format"`
 	// +optional
-	ClientIdleTimeout     int64          `json:"client_idle_timeout,omitempty"`
+	ClientIdleTimeout int64 `json:"client_idle_timeout,omitempty"`
 	// +optional
-	DisconnectExpiredCert bool           `json:"disconnect_expired_cert,omitempty"`
+	DisconnectExpiredCert bool `json:"disconnect_expired_cert,omitempty"`
 }
 
 type RoleConditions struct {
-	Logins     []string            `json:"logins"`
-	Namespaces []string            `json:"-"`
+	Logins     []string `json:"logins"`
+	Namespaces []string `json:"-"`
 	// +optional
 	NodeLabels map[string][]string `json:"node_labels,omitempty"`
 	// +optional
-	Rules      []Rule              `json:"rules,omitempty"`
+	Rules []Rule `json:"rules,omitempty"`
 	// +optional
-	KubeGroups []string            `json:"kubernetes_groups,omitempty"`
+	KubeGroups []string `json:"kubernetes_groups,omitempty"`
 }
 
 type Rule struct {
 	// +optional
 	Resources []string `json:"resources,omitempty"`
 	// +optional
-	Verbs     []string `json:"verbs,omitempty"`
+	Verbs []string `json:"verbs,omitempty"`
 	// +optional
-	Where     string   `json:"where,omitempty"`
+	Where string `json:"where,omitempty"`
 	// +optional
-	Actions   []string `json:"actions,omitempty"`
+	Actions []string `json:"actions,omitempty"`
 }
 
 // RoleStatus defines the observed state of Role

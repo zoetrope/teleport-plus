@@ -16,11 +16,9 @@ limitations under the License.
 package controllers
 
 import (
-	"bytes"
 	"context"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -30,14 +28,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/yaml"
-)
-
-const finalizerName = "finalizer.teleport-plus.gravitational.com"
-
-const (
-	ConditionRegistered = "Registered"
-	ConditionFailed     = "Failed"
-	ConditionDeleted    = "Deleted"
 )
 
 // GitHubReconciler reconciles a GitHub object
@@ -167,38 +157,8 @@ func (r *GitHubReconciler) updateStatus(ctx context.Context, logger logr.Logger,
 	return nil
 }
 
-func execTctl(ctx context.Context, args ...string) ([]byte, []byte, error) {
-	var stdout, stderr bytes.Buffer
-	cmdArgs := []string{"-c", "/etc/teleport/teleport.yaml"}
-	cmdArgs = append(cmdArgs, args...)
-	cmd := exec.CommandContext(ctx, "/tctl", cmdArgs...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	return stdout.Bytes(), stderr.Bytes(), err
-}
-
 func (r *GitHubReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&teleportv1.GitHub{}).
 		Complete(r)
-}
-
-func containsString(slice []string, s string) bool {
-	for _, item := range slice {
-		if item == s {
-			return true
-		}
-	}
-	return false
-}
-
-func removeString(slice []string, s string) (result []string) {
-	for _, item := range slice {
-		if item == s {
-			continue
-		}
-		result = append(result, item)
-	}
-	return
 }

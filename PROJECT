@@ -5,3 +5,6 @@ resources:
 - group: teleport
   version: v1
   kind: GitHub
+- group: teleport
+  version: v1
+  kind: Role

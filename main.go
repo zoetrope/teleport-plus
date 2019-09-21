@@ -68,6 +68,13 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "GitHub")
 		os.Exit(1)
 	}
+	if err = (&controllers.RoleReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Role"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Role")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")

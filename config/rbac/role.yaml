@@ -26,3 +26,23 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - teleport.gravitational.com
+  resources:
+  - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - teleport.gravitational.com
+  resources:
+  - roles/status
+  verbs:
+  - get
+  - patch
+  - update

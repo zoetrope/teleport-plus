@@ -53,6 +53,15 @@ func (r *TeleportResourceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, e
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	ns, err := ownNamespace()
+	if err != nil {
+		log.Error(err, "unable to get own namespace")
+		return ctrl.Result{}, err
+	}
+	if ns != res.Namespace {
+		return ctrl.Result{}, err
+	}
+
 	log.Info("Reconcile a teleport resource: ", "name", res.GetName())
 
 	if res.DeletionTimestamp.IsZero() {

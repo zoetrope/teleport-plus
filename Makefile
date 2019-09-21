@@ -93,4 +93,8 @@ setup-teleport:
 	${KUBECTL} apply -n teleport -f ./e2e/certificate.yaml
 	${KUBECTL} apply -n teleport -f ./e2e/teleport.yaml
 
+reload: docker-push
+	${KUBECTL} delete pod -n teleport -l app=teleport
+
+
 .PHONY: start stop e2e setup-cert-manager setup-teleport

@@ -84,7 +84,6 @@ type RoleStatus struct {
 }
 
 // +kubebuilder:object:root=true
-// +kubebuilder:resource:scope=Cluster
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Condition",type=string,JSONPath=`.status.condition`
 

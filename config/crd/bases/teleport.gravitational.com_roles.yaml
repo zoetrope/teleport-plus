@@ -14,7 +14,7 @@ spec:
   names:
     kind: Role
     plural: roles
-  scope: Cluster
+  scope: ""
   subresources:
     status: {}
   validation:

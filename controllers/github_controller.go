@@ -52,6 +52,15 @@ func (r *GitHubReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	ns, err := ownNamespace()
+	if err != nil {
+		log.Error(err, "unable to get own namespace")
+		return ctrl.Result{}, err
+	}
+	if ns != gh.Namespace {
+		return ctrl.Result{}, err
+	}
+
 	log.Info("Reconcile a github resource: ", "name", gh.GetName())
 
 	if gh.DeletionTimestamp.IsZero() {

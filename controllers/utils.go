@@ -3,7 +3,9 @@ package controllers
 import (
 	"bytes"
 	"context"
+	"io/ioutil"
 	"os/exec"
+	"strings"
 )
 
 const finalizerName = "finalizer.teleport-plus.gravitational.com"
@@ -41,4 +43,16 @@ func removeString(slice []string, s string) (result []string) {
 		result = append(result, item)
 	}
 	return
+}
+
+func ownNamespace() (string, error) {
+	data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	if err != nil {
+		return "", err
+	}
+	ns := strings.TrimSpace(string(data))
+	if len(ns) == 0 {
+		return "", err
+	}
+	return ns, nil
 }

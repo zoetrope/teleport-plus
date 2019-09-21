@@ -14,7 +14,7 @@ spec:
   names:
     kind: GitHub
     plural: githubs
-  scope: Cluster
+  scope: ""
   subresources:
     status: {}
   validation:

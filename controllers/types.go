@@ -35,3 +35,10 @@ type RoleV3 struct {
 	Metadata Metadata            `json:"metadata"`
 	Spec     teleportv1.RoleSpec `json:"spec"`
 }
+
+type TeleportMeta struct {
+	Kind     string   `json:"kind"`
+	SubKind  string   `json:"sub_kind,omitempty"`
+	Version  string   `json:"version"`
+	Metadata Metadata `json:"metadata"`
+}

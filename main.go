@@ -75,6 +75,13 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Role")
 		os.Exit(1)
 	}
+	if err = (&controllers.TeleportResourceReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("TeleportResource"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "TeleportResource")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")

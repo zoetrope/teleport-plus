@@ -1,0 +1,244 @@
+---
+# Source: teleport/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: teleport
+  labels:
+    app: teleport
+    fullname: teleport
+    chart: teleport-0.0.4
+    release: teleport
+    heritage: Tiller
+data:
+  teleport.yaml: |
+    auth_service:
+      authentication:
+        type: github
+      cluster_name: teleport.example.com
+      enabled: true
+      license_file: /var/lib/license/license-enterprise.pem
+      public_addr: teleport.example.com:3025
+    proxy_service:
+      enabled: true
+      https_cert_file: /var/lib/certs/tls.crt
+      https_key_file: /var/lib/certs/tls.key
+      kubernetes:
+        enabled: true
+        listen_addr: 0.0.0.0:3026
+      listen_addr: 0.0.0.0:3023
+      public_addr: teleport.example.com
+      web_listen_addr: 0.0.0.0:3080
+    ssh_service:
+      enabled: true
+      public_addr: teleport.example.com:3022
+    teleport:
+      data_dir: /var/lib/teleport
+      log:
+        output: stderr
+        severity: DEBUG
+      storage:
+        type: dir
+    
+
+---
+# Source: teleport/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: teleport
+  labels:
+    app: teleport
+    fullname: teleport
+    chart: teleport-0.0.4
+    release: teleport
+    heritage: Tiller
+---
+# Source: teleport/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: teleport
+  labels:
+    app: teleport
+    fullname: teleport
+    chart: teleport-0.0.4
+    release: teleport
+    heritage: Tiller
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - users
+  - groups
+  - serviceaccounts
+  verbs:
+  - impersonate
+---
+# Source: teleport/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: teleport
+  labels:
+    app: teleport
+    fullname: teleport
+    chart: teleport-0.0.4
+    release: teleport
+    heritage: Tiller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: teleport
+subjects:
+- kind: ServiceAccount
+  name: teleport
+  namespace: teleport
+---
+# Source: teleport/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: teleport
+  labels:
+    app: teleport
+    fullname: teleport
+    chart: teleport-0.0.4
+    release: teleport
+    heritage: Tiller
+spec:
+  type: NodePort
+  ports:
+    - name: authssh
+      nodePort: 30025
+      port: 3025
+      protocol: TCP
+      targetPort: 3025
+      
+    - name: proxykube
+      nodePort: 30026
+      port: 3026
+      protocol: TCP
+      targetPort: 3026
+      
+    - name: proxyssh
+      nodePort: 30023
+      port: 3023
+      protocol: TCP
+      targetPort: 3023
+      
+    - name: proxytunnel
+      nodePort: 30024
+      port: 3024
+      protocol: TCP
+      targetPort: 3024
+      
+    - name: proxyweb
+      nodePort: 30080
+      port: 3080
+      protocol: TCP
+      targetPort: 3080
+      
+  selector:
+    app: teleport
+    release: teleport
+
+---
+# Source: teleport/templates/deployment.yaml
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: teleport
+  labels:
+    app: teleport
+    fullname: teleport
+    chart: teleport-0.0.4
+    release: teleport
+    heritage: Tiller
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: teleport
+        release: teleport
+        heritage: Tiller
+      annotations:
+        checksum/config: bee43bea6d8d2c0526b94eb3f5f7f667b3b1aaff1919f921d9a3e408c95d2cbc
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - name: teleport
+        image: "quay.io/gravitational/teleport:4.0.2"
+        imagePullPolicy: IfNotPresent
+        args:
+        env:
+        # See https://gravitational.com/teleport/docs/admin-guide/#ports
+        ports:
+        - name: authssh
+          containerPort: 3025
+          
+        - name: nodessh
+          containerPort: 3022
+          
+        - name: proxykube
+          containerPort: 3026
+          
+        - name: proxyssh
+          containerPort: 3023
+          
+        - name: proxytunnel
+          containerPort: 3024
+          
+        - name: proxyweb
+          containerPort: 3080
+          
+        resources:
+          {}
+          
+        volumeMounts:
+        - mountPath: /var/lib/certs
+          name: teleport-tls-web
+          readOnly: true
+        - mountPath: /etc/teleport
+          name: teleport-config
+          readOnly: true
+        - mountPath: /var/lib/teleport
+          name: teleport-storage
+      
+      - name: teleport-plus
+        image: teleport-plus:v1
+        imagePullPolicy: Never
+        volumeMounts:
+        - mountPath: /etc/teleport
+          name: teleport-config
+          readOnly: true
+        - mountPath: /var/lib/teleport
+          name: teleport-storage
+        - mountPath: /tmp
+          name: teleport-plus-tmp
+
+      volumes:
+      - name: teleport-tls-web
+        secret:
+          secretName: tls-web
+      - name: teleport-config
+        configMap:
+          name: teleport
+      - name: teleport-storage
+        emptyDir: {}
+      - name: teleport-plus-tmp
+        emptyDir: {}
+      serviceAccountName: teleport
+
+---
+# Source: teleport/templates/ingress.yaml
+
+---
+# Source: teleport/templates/pv.yaml
+
+
+---
+# Source: teleport/templates/pvc.yaml

@@ -1,0 +1,19 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: ClusterIssuer
+metadata:
+  name: selfsigning-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: teleport-tls
+  namespace: teleport
+spec:
+  secretName: tls-web
+  commonName: teleport.example.com
+  isCA: true
+  issuerRef:
+    name: selfsigning-issuer
+    kind: ClusterIssuer

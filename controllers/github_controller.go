@@ -21,16 +21,24 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/go-logr/logr"
 	teleportv1 "github.com/zoetrope/teleport-plus/api/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/yaml"
 )
 
 const finalizerName = "finalizer.teleport-plus.gravitational.com"
+
+const (
+	ConditionRegistered = "Registered"
+	ConditionFailed     = "Failed"
+	ConditionDeleted    = "Deleted"
+)
 
 // GitHubReconciler reconciles a GitHub object
 type GitHubReconciler struct {
@@ -45,7 +53,6 @@ func (r *GitHubReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 	log := r.Log.WithValues("github", req.NamespacedName)
 
-	// your logic here
 	gh := new(teleportv1.GitHub)
 	err := r.Get(ctx, req.NamespacedName, gh)
 	if err != nil {
@@ -65,9 +72,17 @@ func (r *GitHubReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			}
 		}
 		err = createOrUpdate(ctx, log, gh)
+		if err == nil {
+			err = r.updateStatus(ctx, log, gh, ConditionRegistered, "")
+		} else {
+			_ = r.updateStatus(ctx, log, gh, ConditionFailed, err.Error())
+		}
 		return ctrl.Result{}, err
 	} else if containsString(gh.Finalizers, finalizerName) {
 		err = r.remove(ctx, log, gh)
+		if err != nil {
+			_ = r.updateStatus(ctx, log, gh, ConditionFailed, err.Error())
+		}
 		return ctrl.Result{}, err
 	}
 	return ctrl.Result{}, nil
@@ -131,6 +146,22 @@ func createOrUpdate(ctx context.Context, log logr.Logger, gh *teleportv1.GitHub)
 	stdout, stderr, err := execTctl(ctx, "create", "-f", tmpfile.Name())
 	if err != nil {
 		log.Error(err, "failed to create github connector", "stdout", string(stdout), "stderr", string(stderr), "yaml", string(out))
+		return err
+	}
+	return nil
+}
+
+func (r *GitHubReconciler) updateStatus(ctx context.Context, logger logr.Logger, gh *teleportv1.GitHub, cond string, reason string) error {
+	nowTime := metav1.NewTime(time.Now())
+
+	gh2 := gh.DeepCopy()
+	gh2.Status.Condition = cond
+	gh2.Status.Reason = reason
+	gh2.Status.LastTransitionTime = &nowTime
+	patch := client.MergeFrom(gh)
+
+	if err := r.Status().Patch(ctx, gh2, patch); err != nil {
+		logger.Error(err, "unable to update GitHub status")
 		return err
 	}
 	return nil

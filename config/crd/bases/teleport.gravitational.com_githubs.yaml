@@ -11,6 +11,8 @@ spec:
     kind: GitHub
     plural: githubs
   scope: Cluster
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       description: GitHub is the Schema for the githubs API
@@ -82,13 +84,15 @@ spec:
         status:
           description: GitHubStatus defines the observed state of GitHub
           properties:
-            registered:
-              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                of cluster Important: Run "make" to regenerate code after modifying
-                this file'
-              type: boolean
+            condition:
+              type: string
+            last_transition_time:
+              format: date-time
+              type: string
+            reason:
+              type: string
           required:
-          - registered
+          - condition
           type: object
       type: object
   version: v1
